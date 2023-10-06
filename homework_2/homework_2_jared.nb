@@ -1,0 +1,14 @@
+In[12]:= (*Homework 2 Checking Expectations E*)
+
+\[Lambda][i_] := 1 / (\[Pi]*i)^2 
+\[CurlyPhi][i_, t_] := Sin[\[Pi]*i*t]
+finiteKL[d_, t_, yHat_] := \!\(
+\*SubsuperscriptBox[\(\[Sum]\), \(i = 1\), \(d\)]\((
+\*SqrtBox[\(\[Lambda][i]\)]*\[CurlyPhi][i, \ t]*yHat)\)\)
+brownianBridge[d_, t_, yHat_] := Sqrt[2]*finiteKL[d, t, yHat]
+ (*
+ \[DoubleStruckCapitalE][Sqrt[2]Subsuperscript[Y, t, d]] = 0 for all d
+ *)
+Expectation[brownianBridge[5, t, Overscript[Y, ^]], Overscript[Y, ^] \[Distributed] NormalDistribution[]]
+Out[16]= 0
+
