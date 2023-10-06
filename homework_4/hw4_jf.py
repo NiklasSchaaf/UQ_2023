@@ -3,6 +3,7 @@
 # Slide <##> denotes the homework 4 slide at number <##>
 # Xiu <###> denotes the page number of the course textbook 
 # Xiu "Numerical Methods for Stochastic Computation"
+import itertools
 from typing import List, Callable
 
 import numpy as np
@@ -21,9 +22,11 @@ def orthogonal_projection(
     Not sure what Zs are supposed to be here... callables or actual
     realizations (e.g., uniform is a callable, but uniform() is a realization)
 
-    NOTE: Since this needs to return a callable, the input to such
-    a callable should be a vector of realization of the `k^th` distribution
-    Z_k... so 
+    Args:
+        f: Function to approximate.
+        polynomials: Scipy callables of form `f(order_n) -> poly1d`.
+        Zs: The k^th element is the realization of the k^th proba. density func
+        order_n:
     """
     projection = 0
     polynomial_order_combos = polynomial_order_combinations(order_n)
@@ -65,8 +68,6 @@ def compute_polynomial_product(
 
     Return:
         A scalar representing the product of orthogonal polynomials...
-    
-    Still thinking about this one... product implementation is also not optimal
     """
     prod = 1
     d = len(polynomials)
@@ -78,8 +79,11 @@ def compute_polynomial_product(
     return prod
 
 
-def polynomial_order_combinations(order_n: int) -> List[List[int]]:
-    """Return combinations of polynomial order <= order_n (slide 12,13)"""
-    pass
+def polynomial_order_combinations(N, dims:int = 2):
+    result = []
+    for combo_vector in itertools.product(range(N+1), repeat=dims):
+        if sum(combo_vector) <= N:
+            result.append(combo_vector)
+    return result
 
  
