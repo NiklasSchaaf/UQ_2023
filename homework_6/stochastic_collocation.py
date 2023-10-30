@@ -1,5 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
+import os.path 
+# explicitly add project root dir to path to fix import issue
+sys.path.append(os.path.join(os.path.dirname(__file__), '..')) 
 from homework_6 import heateqn
 
 
