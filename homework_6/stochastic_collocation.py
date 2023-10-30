@@ -37,10 +37,16 @@ def lagrange_basis(x, data_points, j):
 
     return basis
 
+def to_standard_uniform(val, a, b):
+    """Map value corresponding to non-standard uniform U[a, b] to U[-1, 1]."""
+    return ((b-a)/2)*val + (a + b)/2
+
 
 def CollocationApproximation(Z, nodes):
     # get the transformed set of nodes Z
-    zetas = [val * 7 + 9 for val in nodes]
+    a = 2 # distribution parameters from problem statement
+    b = 16
+    zetas = [to_standard_uniform(val, a, b) for val in nodes]
 
     pde_eval_dict = {}
     lagrange_basis_dict = {}
