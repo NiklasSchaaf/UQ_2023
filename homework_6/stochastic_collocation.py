@@ -42,19 +42,22 @@ def to_standard_uniform(val, a, b):
     return ((b-a)/2)*val + (a + b)/2
 
 
-def CollocationApproximation(Z, nodes):
-    # get the transformed set of nodes Z
-    a = 2 # distribution parameters from problem statement
-    b = 16
-    zetas = [to_standard_uniform(val, a, b) for val in nodes]
+def CollocationApproximation(Z, zetas, pde_eval_dict, x_vals):
+    '''
+    Calculates the approximation for a given Z
 
-    pde_eval_dict = {}
+    Arguments:
+        Z -- random variable
+        zetas -- values of the nodes
+        pde_eval_dict -- dictionary with the evaluation of the PDE at the given nodes
+        x_vals -- x values to be evaluated
+
+    Returns:
+        approximation, x values and the node values
+    '''
     lagrange_basis_dict = {}
     # evaluate the PDE for all the zeta values
     for k, val in enumerate(zetas):
-        x_vals, pde_sol = heateqn.heat_eq(val)
-        pde_eval_dict[val] = pde_sol
-
         # calculate the Lagrange basis functions
         basis = lagrange_basis(Z, zetas, k)
         lagrange_basis_dict[val] = basis
@@ -65,14 +68,71 @@ def CollocationApproximation(Z, nodes):
 
     return u_approx, x_vals, zetas
 
+def approx_M(M, zeta_vals):
+    '''
+    Generates a PDE approximation with M nodes for each value zeta_value
+
+    Arguments:
+        M -- number of nodes
+        zeta_vals -- array of zeta values
+
+    Returns:
+        the approximation and x values
+    '''
+    nodes = ClenshawCurtisNodes(M)
+    # get the transformed set of nodes Z
+    a = 2 # distribution parameters from problem statement
+    b = 16
+    zetas = [to_standard_uniform(val, a, b) for val in nodes]
+
+    # 
+    pde_eval_dict = {}
+    for k, val in enumerate(zetas):
+        x_vals, pde_sol = heateqn.heat_eq(val)
+        pde_eval_dict[val] = pde_sol
+
+    realisations = []
+    for val in zeta_vals:
+        approx, _, _ = CollocationApproximation(val, zetas, pde_eval_dict, x_vals)
+        realisations.append(approx)
+
+    return x_vals, realisations
+
+### evaluate the error of approximation against true solution for given Z
+Ms = np.arange(2,40)
+Z = 2
+
+x, solution = heateqn.heat_eq(Z)
+
+errors = []
+for M in Ms:
+    _, realization = approx_M(M, np.array([Z]))
+    errors.append(np.sqrt(np.mean((realization-solution)**2)))
+
+Z2 = 9
+x, solution2 = heateqn.heat_eq(Z2)
+errors2 = []
+for M in Ms:
+    _, realization = approx_M(M, np.array([Z2]))
+    errors2.append(np.sqrt(np.mean((realization-solution2)**2)))
+
+# plot
+plt.plot(Ms, errors, label = 'Z = '+str(Z))
+plt.plot(Ms, errors2, label = 'Z = '+str(Z2))
+
+plt.xlabel('number of nodes')
+plt.ylabel('error')
+plt.yscale('log')
+plt.legend()
+plt.show()
+
+### generate realizations of the approximation.
 M = 30
-nodes = ClenshawCurtisNodes(M)
-zeta_vals = np.random.uniform(2, 16, 200)
-realisations = []
-for val in zeta_vals:
-    approx, x, zetas = CollocationApproximation(val, nodes)
-    realisations.append(approx)
-    plt.plot(x, approx, linewidth = 0.7, color='red')
+zetas_vals = np.random.uniform(2, 16, 200)
+_, realisations = approx_M(30, zetas_vals)
+
+for realisation in realisations:
+    plt.plot(x, realisation, linewidth = 0.7, color='red')
 
 mean_approx = np.mean(realisations, axis=0)
 stdev_approx = np.std(realisations, axis = 0)
