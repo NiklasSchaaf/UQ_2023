@@ -91,10 +91,10 @@ def approx_M(M, zeta_vals):
         x_vals, pde_sol = heateqn.heat_eq(val)
         pde_eval_dict[val] = pde_sol
 
-    realisations = []
-    for val in zeta_vals:
+    realisations = np.zeros((len(zeta_vals),len(x_vals)))
+    for i, val in enumerate(zeta_vals):
         approx, _, _ = CollocationApproximation(val, zetas, pde_eval_dict, x_vals)
-        realisations.append(approx)
+        realisations[i] = approx
 
     return x_vals, realisations
 
@@ -143,9 +143,8 @@ plt.plot(x, mean_approx, linewidth = 2.5, color='black', label = "mean")
 plt.fill_between(x, percentiles_5, percentiles_95, color='gray', alpha=0.4, label='5th-95th Percentiles')
 plt.legend()
 plt.ylabel("u(x, Z)")
-plt.title("Approximation of u(x) with Stochastic Collocation")
+plt.title("Approximation of u(x) with Stochastic Collocation, M = 30")
 plt.show()
-
 
 # Find the index in the 'x' array that is closest to x = 0.7
 x_target = 0.7
@@ -171,8 +170,20 @@ plt.hist(u_vals_07_exact, bins=25)
 plt.title('Histogram of the exact u(x=0.7, Z)')
 plt.show()
 
+### plot change in standard deviation with MC sampling
+N = 10000 # samples
+zeta_vals = np.random.uniform(2,16,N)
+_, MC_realizations = approx_M(30, zeta_vals)
 
+# get mean of std
+stds = []
+for i in np.arange(100,N+1,100):
+    stds.append(np.mean(np.std(MC_realizations[:i], axis = 1)))
 
+plt.plot(np.arange(100,N+1,100),stds)
+plt.ylabel('mean standard deviation')
+plt.xlabel('N samples')
+plt.show()
 
 
 
