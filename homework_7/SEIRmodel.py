@@ -1,8 +1,9 @@
-from numpy import ceil, zeros, array
+from numpy import ceil, arange
+from scipy.integrate import solve_ivp
 
-def SEIRmodel(R0,T,tau):
+def SEIRmodel(R0, T, tau):
     N = 1e5 # population size
-    b= R0/tau
+    b = R0/tau
 
     # init conditions
     E=0
@@ -10,28 +11,32 @@ def SEIRmodel(R0,T,tau):
     R=0
     S=N-E-I-R
 
+    # create tsteps at which the solution will be saved
+    t0 = 0
     Tend=500
     dt=0.01
     Nt = int(ceil(Tend/dt))
-    Xoutput = zeros(shape=(Nt+1, 4))
+    tsteps_to_eval = arange(t0, Tend, dt)
 
-    # ixs      0  1  2  3
-    x = array([S, E, I, R])
+    # ixs 0  1  2  3
+    x0 = [S, E, I, R]
 
-    for n in range(1, Nt+1):
-        
-        Xoutput[n, :] = x
-        
-        # RK 2
-        xdot = deriv(x,b,T,tau)
-        x2 = x + dt*xdot/2
-        xdot2 = deriv(x2,b,T,tau)
-        x = x + dt*xdot2
-        
+    sol = solve_ivp(
+        deriv, 
+        t_span=(t0, Tend), 
+        t_eval=tsteps_to_eval,
+        y0=x0, 
+        # using RK2 bc that's what MATLAB script uses
+        method='RK23',
+        args=(b, T, tau))
+    
+    # [n_state_vars, n_tsteps] --> [n_tsteps, n_state_vars]
+    Xoutput = sol.y.T
+
     return Xoutput
 
 
-def deriv(x, b, T, tau):
+def deriv(t, x, b, T, tau):
     S, E, I, R = x
     N = S + E + I + R
 
@@ -40,4 +45,4 @@ def deriv(x, b, T, tau):
     Id = (1/T)*E - (1/tau)*I
     Rd = (1/tau)*I
 
-    return array([Sd, Ed, Id, Rd])
+    return [Sd, Ed, Id, Rd]
