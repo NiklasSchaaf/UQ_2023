@@ -67,11 +67,11 @@ def heat_eq(z):
 
     return x, u
 
+if __name__ == "__main__":
+    x, u = heat_eq(np.pi)
 
-x, u = heat_eq(np.pi)
-
-fig = plt.figure()
-ax = fig.add_subplot(111, xlabel='x', ylabel='u')
-ax.plot(x, u)
-plt.tight_layout()
-plt.show()
+    fig = plt.figure()
+    ax = fig.add_subplot(111, xlabel='x', ylabel='u')
+    ax.plot(x, u)
+    plt.tight_layout()
+    plt.show()
