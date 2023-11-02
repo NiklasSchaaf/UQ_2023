@@ -2,7 +2,7 @@ from numpy import ceil, arange, ndarray
 from scipy.integrate import solve_ivp
 
 def SEIRmodel(R0, T, tau) -> ndarray:
-    """Return SEIR model solution vector for tsteps in range(0, 500, 0.01)
+    """Return SEIR model solution matrix for tsteps in range(0, 500, 0.01)
     
     Args:
         R0: Reproduction number.
