@@ -3,7 +3,7 @@ from numpy import ndarray, cos, pi, zeros, array
 
 
 def get_clenshawcurtis_collocation_nodes_matrix(k: int, d_dims: int) -> ndarray:
-    """Return collocation nodes matrix using Curtis-Clenshaw nodes of level `k`.
+    """Matrix where rows are collocation nodes for the i^th random variable.
 
     Example:
    
