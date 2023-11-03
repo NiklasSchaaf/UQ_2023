@@ -1,7 +1,9 @@
+from typing import Tuple
 import itertools 
 from numpy import ndarray, cos, pi, zeros, array
 
-def dense_tensor_grid(k: int, d_dims: int, m_i: int) -> ndarray:
+
+def dense_tensor_grid(k: int, d_dims: int) -> Tuple[ndarray, ndarray]:
     """Return collocation nodes matrix and dense tensor grid at level `k`.
 
     Uses extrema of Chebyshev polynomials for grid nodes.
@@ -13,22 +15,20 @@ def dense_tensor_grid(k: int, d_dims: int, m_i: int) -> ndarray:
     >>> # ... i don't know why this is 
     >>> from multidim_stochastic_collocation import dense_tensor_grid
     >>> import matplotlib.pyplot as plt 
-    >>> k = 6; d = 2; m_i = 30 # m_i is pretty much arbitrary
-    >>> collocation_nodes_matrix, tensor_grid = dense_tensor_grid(k, d, m_i)
-    >>> plt.scatter(tensor_grid[:, 0], tensor_grid[:, 1], s = 1)
+    >>> k = 6; d = 2;
+    >>> collocation_nodes_matrix, tensor_grid = dense_tensor_grid(k, d)
+    >>> plt.scatter(tensor_grid[0, :], tensor_grid[1, :], s = 1)
     >>> plt.show()
 
     Args:
         k: Level of Clenshaw-Curtis grid.
         d_dims: Number of random variables in problem of interest.
-        m_i: Desired number of collocation points in each dimension. Note
-            that the actual number of points will be reduced by the level
-            `k`.
 
     Returns:
        Collocation nodes matrix  of shape `[d_dims, m_ik]` where 
-        `m_ik = 2**(k-1) + 1` and a tensor grid representing the cartesian
-        product of row `i` in the collocation matrix with row `j` s.t. `i != j`.
+        `m_ik = 2**(k-1) + 1`, and a tensor grid of shape 
+        `[d_dims, m_ik**d_dims]` representing the cartesian product of row `i` 
+        in the collocation matrix with row `j` s.t. `i != j`.
 
     References:
         Xiu ch. 7.2.1 and 7.2.2.
@@ -53,7 +53,7 @@ def dense_tensor_grid(k: int, d_dims: int, m_i: int) -> ndarray:
     tensor_grid = array(
         tuple(
             itertools.product(
-                *[collocation_nodes_matrix[i, :] for i in range(d_dims)])))
+                *[collocation_nodes_matrix[i, :] for i in range(d_dims)]))).T
 
     return collocation_nodes_matrix, tensor_grid
    
