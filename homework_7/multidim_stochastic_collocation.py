@@ -37,7 +37,7 @@ def dense_tensor_grid(k: int, d_dims: int) -> Tuple[ndarray, ndarray]:
     # The below algorithm is directly from Xiu equation 7.10 and desc. Xiu p. 82
     # and builds the collocation nodes matrix (i.e., collocation nodes
     # per dimension)
-    m_ik = 2**(k-1) + 1 if k > 1 else 1
+    m_ik = 2**(k-1) + 1 if k > 1 else 1 # num collocation nodes per dim
     collocation_nodes_matrix = zeros(shape=(d_dims, m_ik))
     for i in range(1, d_dims+1):
         for j in range(1, m_ik+1):
