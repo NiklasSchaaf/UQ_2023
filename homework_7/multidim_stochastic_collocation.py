@@ -98,5 +98,5 @@ def lagrange_basis(x, data_points, j):
 
 
 def map_val_to_new_interval(val, a, b):
-    """Map value on interval [-1, 1] to [a, b] where [a, b]."""
+    """Map value on interval [-1, 1] to [a, b]."""
     return ((b-a)/2)*val + (a + b)/2
