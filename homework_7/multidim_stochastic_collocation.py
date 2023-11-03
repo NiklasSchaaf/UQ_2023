@@ -2,7 +2,7 @@ import itertools
 from numpy import ndarray, cos, pi, zeros, array
 
 
-def get_collocation_nodes_matrix(k: int, d_dims: int) -> ndarray:
+def get_clenshawcurtis_collocation_nodes_matrix(k: int, d_dims: int) -> ndarray:
     """Return collocation nodes matrix using Curtis-Clenshaw nodes of level `k`.
 
     Example:
@@ -10,12 +10,11 @@ def get_collocation_nodes_matrix(k: int, d_dims: int) -> ndarray:
     >>> # Reproduce figure 7.1 from Xiu
     >>> # NOTE: k = 5 in figure, but to get 1089 points, k = 6 in this example
     >>> # ... i don't know why this is 
-    >>> from multidim_stochastic_collocation import get_tensor_grid
-    >>> from multidim_stochastic_collocation import  get_collocation_nodes_matrix
+    >>> import multidim_stochastic_collocation as msc
     >>> import matplotlib.pyplot as plt 
     >>> k = 6; d = 2;
-    >>> collocation_nodes_matrix = get_collocation_nodes_matrix(k, d)
-    >>> tensor_grid = get_tensor_grid(collocation_nodes_matrix)
+    >>> collocation_nodes_matrix = msc.get_clenshawcurtis_collocation_nodes_matrix(k, d)
+    >>> tensor_grid = msc.get_tensor_grid(collocation_nodes_matrix)
     >>> plt.scatter(tensor_grid[0, :], tensor_grid[1, :], s = 1)
     >>> plt.show()
 
@@ -24,7 +23,7 @@ def get_collocation_nodes_matrix(k: int, d_dims: int) -> ndarray:
         d_dims: Number of random variables in problem of interest.
 
     Returns:
-       Collocation nodes matrix of shape `[d_dims, m_ik]` where 
+       Clenshaw-Curtis collocation nodes matrix of shape `[d_dims, m_ik]` where 
         `m_ik = 2**(k-1) + 1`. Semantically, each random variable has
         a vector of collocation nodes associated with it. This corresponds
         to `collocation_nodes_matrix[random_variable_ix, :]`
