@@ -1,9 +1,8 @@
-from typing import Tuple
 import itertools 
 from numpy import ndarray, cos, pi, zeros, array
 
 
-def get_collocation_nodes_matrix(k: int, d_dims: int) -> Tuple[ndarray, ndarray]:
+def get_collocation_nodes_matrix(k: int, d_dims: int) -> ndarray:
     """Return collocation nodes matrix using Curtis-Clenshaw nodes of level `k`.
 
     Example:
