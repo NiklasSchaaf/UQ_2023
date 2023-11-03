@@ -77,3 +77,27 @@ def nested_clenshaw_curtis_node(j, m_ik):
     """
     return -cos((pi*(j - 1))/(m_ik - 1))
 
+
+def lagrange_basis(x, data_points, j):
+    """Calculate the Lagrange basis function for the j-th data point.
+
+    Args:
+        x: The point at which we evaluate the basis function.
+        data_points (array-like): The list of data points (x values).
+        j: The index of the data point for which we calculate the basis function.
+
+    Returns:
+        The value of the j-th Lagrange basis function at point x.
+    """
+    n = len(data_points)
+    basis = 1.0
+    for i in range(n):
+        if j != i:
+            basis *= (x - data_points[i]) / (data_points[j] - data_points[i])
+
+    return basis
+
+
+def map_val_to_new_interval(val, a, b):
+    """Map value on interval [-1, 1] to [a, b] where [a, b]."""
+    return ((b-a)/2)*val + (a + b)/2
