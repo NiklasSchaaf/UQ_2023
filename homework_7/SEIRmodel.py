@@ -25,8 +25,8 @@ def SEIRmodel(R0, T, tau) -> ndarray:
 
     # create tsteps at which the solution will be saved
     t0 = 0
-    Tend=500
-    dt=0.01
+    Tend = 500
+    dt = 0.01
     tsteps_to_eval = arange(t0, Tend, dt)
 
     # ixs 0  1  2  3
