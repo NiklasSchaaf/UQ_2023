@@ -202,7 +202,7 @@ def stochastic_collocation_summand(
     js: List[int], 
     Zs: ndarray, 
     collocation_nodes_matrix: ndarray, 
-    model: Callable):
+    model: Union[Callable, ndarray]):
     """Stochastic collocation on collocation nodes of indices `js`.
   
     Args:
@@ -212,7 +212,8 @@ def stochastic_collocation_summand(
         collocation_nodes_matrix: Matrix of collocation nodes where the i^th
             row is the set of collocation nodes for the i^th random variable.
         model: Function `u` that will be evaluated at collocation nodes 
-            corresponding to the indices `js`.
+            corresponding to the indices `js` OR a tensor of precomputed
+            model evaluations for the collocation nodes.
 
     Returns:
         The product of the `model` evaluated at the collocation nodes using the
@@ -236,19 +237,17 @@ def stochastic_collocation_summand(
 
 def multidim_stochastic_collocation(
     Zs: ndarray, 
-    model: Callable, 
+    model: Union[Callable, ndarray], 
     collocation_nodes_matrix: ndarray,
     multi_index: Tuple):
     """Multidimensional stochastic collocation using dense tensor product.
-
-    TODO: Caching the model evaluations at multi-indices would be ideal
-    for running monte-carlo simulation.
-   
+ 
     Args: 
         Zs: Vector of realizations of the random variables 
             (i.e., Z_1, Z_2, ..., Z_d).
         model: Function `u` that will be evaluated at collocation nodes 
-            corresponding to the indices `js`.
+            corresponding to the indices `js` OR a tensor of precomputed
+            model evaluations for the collocation nodes.
         collocation_nodes_matrix: Matrix of collocation nodes where the i^th
             row is the set of collocation nodes for the i^th random variable.
         multi_index: Tuple of indices `js` used for the summation over
@@ -274,8 +273,8 @@ def multidim_stochastic_collocation(
 
 
 if __name__ == "__main__":
-    ## Test stochastic collocation function ##
-    
+    ## Example stochastic collocation using uncached model evaluations
+
     # define random variable intervals 
     R0_interval = [1.5, 3.0] # ~ Uniform distribution   
     T_interval = [5, 10]     # ~ Uniform distribution
@@ -295,13 +294,14 @@ if __name__ == "__main__":
     # is `num_nodes**d`, this grows exponentially fast and is a huge bottleneck
     # e.g., level 5 --> 17 collocation nodes and d=3 --> 17**3 = 4913 
     # evaluations of model function `u`
-    clenshaw_curtis_level = 3  
+    clenshaw_curtis_level = 2 
     collocation_nodes_matrix = get_clenshawcurtis_collocation_nodes_matrix(
         k=clenshaw_curtis_level, d_dims=len(Zs)) 
 
-    # Scale the collocation nodes [-1, 1] -> [a, b] for respective random vars
+    # Get the number of collocation nodes for each random var
     n_nodes_per_randvar = collocation_nodes_matrix.shape[1]
 
+    # Scale the collocation nodes [-1, 1] -> [a, b] for respective random vars
     collocation_nodes_matrix[0, :] = array( # scale R0 nodes
         [map_uniform_val_to_new_interval(
             collocation_nodes_matrix[0, i], *R0_interval) 
@@ -328,7 +328,8 @@ if __name__ == "__main__":
     infected_approx = u_approx[:, 2] 
 
     # get the infected from just running the model as is
-    infected = SEIRmodel(*Zs)[:, 2]
+    seir_model_solutions = SEIRmodel(*Zs)
+    infected = seir_model_solutions[:, 2]
     
     # plot the approximated infected and the regular model infected
     plt.plot(infected_approx, label="Stochastic Collocation")
@@ -342,3 +343,12 @@ if __name__ == "__main__":
     plt.legend()
 
     plt.show()
+
+    ## Cache the model evaluations at the collocation nodes 
+    n_randvars = len(Zs)
+
+    model_evaluation_cache = zeros(
+        shape=(*([n_nodes_per_randvar]*n_randvars), 
+                *seir_model_solutions.shape))
+
+    print(model_evaluation_cache.shape)
