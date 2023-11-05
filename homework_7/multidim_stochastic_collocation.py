@@ -6,17 +6,19 @@ def get_clenshawcurtis_collocation_nodes_matrix(k: int, d_dims: int) -> ndarray:
     """Matrix where rows are collocation nodes for the i^th random variable.
 
     Example:
-   
-    >>> # Reproduce figure 7.1 from Xiu
-    >>> # NOTE: k = 5 in figure, but to get 1089 points, k = 6 in this example
-    >>> # ... i don't know why this is 
-    >>> import multidim_stochastic_collocation as msc
-    >>> import matplotlib.pyplot as plt 
-    >>> k = 6; d = 2;
-    >>> collocation_nodes_matrix = msc.get_clenshawcurtis_collocation_nodes_matrix(k, d)
-    >>> tensor_grid = msc.get_tensor_grid(collocation_nodes_matrix)
-    >>> plt.scatter(tensor_grid[0, :], tensor_grid[1, :], s = 1)
-    >>> plt.show()
+
+    ```
+    # Reproduce figure 7.1 from Xiu
+    # NOTE: k = 5 in figure, but to get 1089 points, k = 6 in this example
+    # ... i don't know why this is 
+    import multidim_stochastic_collocation as msc
+    import matplotlib.pyplot as plt 
+    k = 6; d = 2;
+    collocation_nodes_matrix = msc.get_clenshawcurtis_collocation_nodes_matrix(k, d)
+    tensor_grid = msc.get_tensor_grid(collocation_nodes_matrix)
+    plt.scatter(tensor_grid[0, :], tensor_grid[1, :], s = 1)
+    plt.show()
+    ```
 
     Args:
         k: Level of Clenshaw-Curtis grid.
@@ -61,10 +63,12 @@ def get_tensor_grid(collocation_nodes_matrix: ndarray) -> ndarray:
         See Xiu figure 7.1.
     """
     d_dims = collocation_nodes_matrix.shape[0]
+
     tensor_grid = array(
         tuple(
             itertools.product(
                 *[collocation_nodes_matrix[i, :] for i in range(d_dims)]))).T
+
     return tensor_grid
 
  
@@ -149,3 +153,73 @@ def stochastic_collocation_summand(
             f"but got {type(model)}")
     L = lagrange_basis_product(js, Zs, collocation_nodes_matrix)
     return u*L
+
+
+def multidim_stochastic_collocation(
+    Zs: ndarray, 
+    model: Union[Callable, ndarray], 
+    collocation_nodes_matrix: ndarray):
+    """Multidimensional stochastic collocation using dense tensor product.
+   
+    Args: 
+        Zs: Vector of realizations of the random variables 
+            (i.e., Z_1, Z_2, ..., Z_d).
+        collocation_nodes_matrix: Matrix of collocation nodes where the i^th
+            row is the set of collocation nodes for the i^th random variable.
+        model: Function `u` that will be evaluated at collocation nodes 
+            corresponding to the indices `js`.
+
+    Returns:
+        pass
+
+    References:
+        Slide 9 from UQ lecture 8.
+    """
+    multi_index = get_multi_index(collocation_nodes_matrix)
+    u_approx = 0 # need to change this based on model output shape
+
+    for js in multi_index:
+        u_approx += stochastic_collocation_summand(
+            js, Zs, collocation_nodes_matrix)
+
+    return u_approx
+
+
+def get_multi_index(collocation_nodes_matrix: ndarray) -> itertools.product:
+    """Computes multi-index by taking cartesian product of summation indices.
+    
+    This is just the d-dimensional case of the below 2D example.
+
+    Example:
+
+    ```
+    # Say you have 2 random variables and 2 collocation nodes
+    # per random variable, then iterating over these nodes is naively
+    # performed as shown below (you have i for first dimension, and j
+    # for the second dimension)
+    n_nodes = 2
+    for i in range(n_nodes):
+        for j in range(n_nodes):
+            print(f"({i}, {j})")
+    # this prints (0, 0), (0, 1), (0, 2), ..., (2, 2)
+    # but this set of indices could also be computed by taking a cartesian
+    # product, which is exactly what this function does
+    from multidim_stochastic_collocation import get_multi_index
+    from numpy import zeros
+    n_rand_vars = 2
+    dummy_matrix = zeros(shape=(n_rand_vars, n_nodes))
+    multi_index = get_multi_index(dummy_matrix)
+    print()
+    for ij in multi_index:
+        print(ij)
+    ```
+    """
+    n_collocation_nodes_per_randvar = collocation_nodes_matrix.shape[1]
+    n_rand_vars = collocation_nodes_matrix.shape[0] 
+
+    multi_index = itertools.product(
+        *[range(n_collocation_nodes_per_randvar) 
+        for randvar in range(n_rand_vars)])
+
+    return multi_index
+
