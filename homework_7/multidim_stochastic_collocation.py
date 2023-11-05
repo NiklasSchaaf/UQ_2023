@@ -222,12 +222,13 @@ def stochastic_collocation_summand(
         On slide 9 of UQ lecture 8, this function corresponds to the summand
         (i.e., the "thing" inside the sums over the multi-index).
     """
-    d_dims = len(js)
+    # get the collocation nodes for the current multi-indices
     collocation_nodes_at_j = collocation_nodes_matrix[range(len(js)), js]
 
     # Determine function u evaluation at collocation nodes from multi-index js
     u = model(*collocation_nodes_at_j)
 
+    # get a product of lagrange basis functions
     L = lagrange_basis_product(js, Zs, collocation_nodes_matrix)
 
     return u*L
