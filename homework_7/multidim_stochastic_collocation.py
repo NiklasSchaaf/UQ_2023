@@ -1,4 +1,11 @@
-"""Functions for performing multidimensional stochastic collocation"""
+"""Functions for performing multidimensional stochastic collocation
+
+Usage:
+```shell
+# To see what the output of stochastic collocation looks like, run the below
+python homework_7/multidim_stochastic_collocation 
+```
+"""
 
 
 from typing import List, Union, Callable, Tuple
@@ -71,6 +78,8 @@ def get_clenshawcurtis_collocation_nodes_matrix(k: int, d_dims: int) -> ndarray:
 def get_tensor_grid(collocation_nodes_matrix: ndarray) -> ndarray: 
     """Return dense tensor grid by cartesian product of collocation matrix rows.
 
+    NOTE: Only used as a sanity check for the collocation nodes function.
+
     Args:
         collocation_nodes_matrix: Ndarray in `[d_dims, m_ik]`.
 
@@ -99,38 +108,6 @@ def nested_clenshaw_curtis_node(j, m_ik):
     return -cos((pi*(j - 1))/(m_ik - 1))
 
 
-def lagrange_basis(x, data_points, j):
-    """Calculate the Lagrange basis function for the j-th data point.
-
-    Args:
-        x: The point at which we evaluate the basis function.
-        data_points (array-like): The list of data points (x values).
-        j: The index of the data point for which we calculate the basis function.
-
-    Returns:
-        The value of the j-th Lagrange basis function at point x.
-    """
-    n = len(data_points)
-    basis = 1.0
-    for i in range(n):
-        if j != i:
-            basis *= (x - data_points[i]) / (data_points[j] - data_points[i])
-
-    return basis
-
-
-def lagrange_basis_product(js, Zs, collocation_nodes_matrix):
-    """Product of lagrange basis functions (see slide 9 UQ Lecture 8)."""
-    prod = 1
-    d_dims = len(js)
-    for n in range(d_dims):
-        Z_n = Zs[n]
-        j_n = js[n]
-        theta_M_n = collocation_nodes_matrix[n, :]
-        prod *= lagrange_basis(Z_n, theta_M_n, j_n)
-    return prod
-
-
 def map_uniform_val_to_new_interval(val, a, b):
     """Map value on interval [-1, 1] to [a, b].
 
@@ -148,40 +125,6 @@ def map_beta_val_to_new_interval(val, a, b):
         [Difference between standard beta and unstandard beta distributions?](https://stats.stackexchange.com/questions/186465/difference-between-standard-beta-and-unstandard-beta-distributions/186467#186467)
     """
     return val*(b-a) + a
-
-
-def stochastic_collocation_summand(
-    js: List[int], 
-    Zs: ndarray, 
-    collocation_nodes_matrix: ndarray, 
-    model: Union[Callable, ndarray]):
-    """Stochastic collocation on collocation nodes of indices `js`.
- 
-    On slide 9 of UQ lecture 8, this function corresponds to the summand
-    (i.e., the "thing" inside the sums over the multi-index).
-    
-    Args:
-        js: List of indices (i.e., the multi-index).
-        Zs: Vector of realizations of the random variables 
-            (i.e., Z_1, Z_2, ..., Z_d).
-        collocation_nodes_matrix: Matrix of collocation nodes where the i^th
-            row is the set of collocation nodes for the i^th random variable.
-        model: Function `u` that will be evaluated at collocation nodes 
-            corresponding to the indices `js`.
-
-    Returns:
-        The product of the `model` evaluated at the collocation nodes using the
-        multi-index `js` AND the lagrange basis functions product.
-    """
-    d_dims = len(js)
-    collocation_nodes_at_j = collocation_nodes_matrix[range(len(js)), js]
-
-    # Determine function u evaluation at collocation nodes from multi-index js
-    u = model(*collocation_nodes_at_j)
-
-    L = lagrange_basis_product(js, Zs, collocation_nodes_matrix)
-
-    return u*L
 
 
 def get_multi_index(collocation_nodes_matrix: ndarray) -> itertools.product:
@@ -221,6 +164,72 @@ def get_multi_index(collocation_nodes_matrix: ndarray) -> itertools.product:
         for randvar in range(n_rand_vars)])
 
     return multi_index
+
+
+def lagrange_basis(x, data_points, j):
+    """Calculate the Lagrange basis function for the j-th data point.
+
+    Args:
+        x: The point at which we evaluate the basis function.
+        data_points (array-like): The list of data points (x values).
+        j: The index of the data point for which we calculate the basis function.
+
+    Returns:
+        The value of the j-th Lagrange basis function at point x.
+    """
+    n = len(data_points)
+    basis = 1.0
+    for i in range(n):
+        if j != i:
+            basis *= (x - data_points[i]) / (data_points[j] - data_points[i])
+
+    return basis
+
+
+def lagrange_basis_product(js, Zs, collocation_nodes_matrix):
+    """Product of lagrange basis functions (see slide 9 UQ Lecture 8)."""
+    prod = 1
+    d_dims = len(js)
+    for n in range(d_dims):
+        Z_n = Zs[n]
+        j_n = js[n]
+        theta_M_n = collocation_nodes_matrix[n, :]
+        prod *= lagrange_basis(Z_n, theta_M_n, j_n)
+    return prod
+
+
+def stochastic_collocation_summand(
+    js: List[int], 
+    Zs: ndarray, 
+    collocation_nodes_matrix: ndarray, 
+    model: Union[Callable, ndarray]):
+    """Stochastic collocation on collocation nodes of indices `js`.
+ 
+    On slide 9 of UQ lecture 8, this function corresponds to the summand
+    (i.e., the "thing" inside the sums over the multi-index).
+    
+    Args:
+        js: List of indices (i.e., the multi-index).
+        Zs: Vector of realizations of the random variables 
+            (i.e., Z_1, Z_2, ..., Z_d).
+        collocation_nodes_matrix: Matrix of collocation nodes where the i^th
+            row is the set of collocation nodes for the i^th random variable.
+        model: Function `u` that will be evaluated at collocation nodes 
+            corresponding to the indices `js`.
+
+    Returns:
+        The product of the `model` evaluated at the collocation nodes using the
+        multi-index `js` AND the lagrange basis functions product.
+    """
+    d_dims = len(js)
+    collocation_nodes_at_j = collocation_nodes_matrix[range(len(js)), js]
+
+    # Determine function u evaluation at collocation nodes from multi-index js
+    u = model(*collocation_nodes_at_j)
+
+    L = lagrange_basis_product(js, Zs, collocation_nodes_matrix)
+
+    return u*L
 
 
 def multidim_stochastic_collocation(
