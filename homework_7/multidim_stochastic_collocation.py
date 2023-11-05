@@ -122,7 +122,7 @@ def stochastic_collocation_summand(
     """Stochastic collocation on collocation nodes of indices `js`.
  
     On slide 9 of UQ lecture 8, this function corresponds to the summand
-    (i.e., the "thing" inside the product of sums over the multi-index).
+    (i.e., the "thing" inside the sums over the multi-index).
     
     Args:
         js: List of indices (i.e., the multi-index).
