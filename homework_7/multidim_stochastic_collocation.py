@@ -1,5 +1,6 @@
 import itertools 
 from numpy import ndarray, cos, pi, zeros, array
+from numba import njit
 
 
 def get_clenshawcurtis_collocation_nodes_matrix(k: int, d_dims: int) -> ndarray:
@@ -76,7 +77,7 @@ def nested_clenshaw_curtis_node(j, m_ik):
     """
     return -cos((pi*(j - 1))/(m_ik - 1))
 
-
+@njit
 def lagrange_basis(x, data_points, j):
     """Calculate the Lagrange basis function for the j-th data point.
 
@@ -96,7 +97,7 @@ def lagrange_basis(x, data_points, j):
 
     return basis
 
-
+@njit
 def map_val_to_new_interval(val, a, b):
     """Map value on interval [-1, 1] to [a, b]."""
     return ((b-a)/2)*val + (a + b)/2
