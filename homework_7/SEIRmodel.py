@@ -1,6 +1,10 @@
 from numpy import ceil, arange, ndarray
 from scipy.integrate import solve_ivp
 
+
+INFECTED_IX: int = 2
+
+
 def SEIRmodel(R0, T, tau) -> ndarray:
     """Return SEIR model solution matrix for tsteps in range(0, 500, 0.01)
     

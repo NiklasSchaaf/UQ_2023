@@ -249,7 +249,8 @@ def multidim_stochastic_collocation(
     Zs: ndarray, 
     model: Union[Callable, ndarray], 
     collocation_nodes_matrix: ndarray,
-    multi_index: Tuple):
+    multi_index: Tuple,
+    verbose = True):
     """Multidimensional stochastic collocation using dense tensor product.
  
     Args: 
@@ -262,7 +263,8 @@ def multidim_stochastic_collocation(
             row is the set of collocation nodes for the i^th random variable.
         multi_index: Tuple of indices `js` used for the summation over
             a d-dimensional `Zs` vector.
-
+        verbose: True to print tqdm progress, false otherwise.
+            
     Returns:
         Multidimensional stochastic collocation approximation of `model`
         using random variables `Zs` and `collocation_nodes_matrix`.
@@ -286,7 +288,9 @@ def multidim_stochastic_collocation(
         raise TypeError("`model` must be of type `Callable` or `ndarray`")
 
     # iterate through multi-indices and sum using stochastic collocation
-    for js in tqdm(multi_index, desc="Performing stochastic collocation"):
+    for js in tqdm(
+        multi_index, desc="Performing stochastic collocation", 
+        disable=not verbose):
         u_approx += stochastic_collocation_summand(
             js, Zs, collocation_nodes_matrix, model)
 
