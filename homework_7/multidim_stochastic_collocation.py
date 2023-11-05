@@ -17,7 +17,7 @@ import sys
 
 import matplotlib.pyplot as plt
 
-from numpy import ndarray, cos, pi, zeros, array, zeros_like
+from numpy import ndarray, cos, pi, zeros, array, zeros_like, allclose
 from numpy.random import uniform, beta
 
 from tqdm import tqdm
@@ -223,11 +223,19 @@ def stochastic_collocation_summand(
         On slide 9 of UQ lecture 8, this function corresponds to the summand
         (i.e., the "thing" inside the sums over the multi-index).
     """
-    # get the collocation nodes for the current multi-indices
-    collocation_nodes_at_j = collocation_nodes_matrix[range(len(js)), js]
+    # determine how the model outputs for these nodes are computed
+    if isinstance(model, Callable):
+        # get the collocation nodes for the current multi-indices
+        collocation_nodes_at_j = collocation_nodes_matrix[range(len(js)), js]
 
-    # Determine function u evaluation at collocation nodes from multi-index js
-    u = model(*collocation_nodes_at_j)
+        # Determine function u evaluation at collocation nodes from multi-index js 
+        u = model(*collocation_nodes_at_j)
+
+    elif isinstance(model, ndarray):
+        u = model[js]
+
+    else:
+        raise TypeError("`model` must be of type `Callable` or `ndarray`.")
 
     # get a product of lagrange basis functions
     L = lagrange_basis_product(js, Zs, collocation_nodes_matrix)
@@ -260,8 +268,20 @@ def multidim_stochastic_collocation(
     References:
         Slide 9 from UQ lecture 8.
     """
-    # uses a dummy evaluation of the model to ascertain its output shape
-    u_approx = zeros_like(model(*Zs))
+    # initialize u_approx
+    u_approx: ndarray
+
+    if isinstance(model, Callable):
+        # uses a dummy evaluation of the model to ascertain its output shape
+        u_approx = zeros_like(model(*Zs))
+
+    elif isinstance(model, ndarray):
+        precomputed_tensor_shape = model.shape
+        model_shape = precomputed_tensor_shape[len(Zs): ]
+        u_approx = zeros(shape=model_shape)
+
+    else:
+        raise TypeError("`model` must be of type `Callable` or `ndarray`")
 
     # iterate through multi-indices and sum using stochastic collocation
     for js in tqdm(multi_index, desc="Performing stochastic collocation"):
@@ -364,4 +384,10 @@ if __name__ == "__main__":
         eval_cache_ix = (*js, ...)
         model_evaluation_cache[eval_cache_ix]  = model_eval
 
-    
+    # Stochastic collocation using cached model evaluations
+    u_approx_cached = multidim_stochastic_collocation(
+        Zs, model_evaluation_cache, collocation_nodes_matrix, multi_index)  
+
+    ## Check the cached and on the fly computed u_approx's are the same
+    assert_msg =  "cached and on-the-fly u_approx are same"
+    assert allclose(u_approx, u_approx_cached), assert_msg
