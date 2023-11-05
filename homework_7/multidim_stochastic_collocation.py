@@ -247,10 +247,10 @@ def multidim_stochastic_collocation(
     Args: 
         Zs: Vector of realizations of the random variables 
             (i.e., Z_1, Z_2, ..., Z_d).
-        collocation_nodes_matrix: Matrix of collocation nodes where the i^th
-            row is the set of collocation nodes for the i^th random variable.
         model: Function `u` that will be evaluated at collocation nodes 
             corresponding to the indices `js`.
+        collocation_nodes_matrix: Matrix of collocation nodes where the i^th
+            row is the set of collocation nodes for the i^th random variable.
         multi_index: Tuple of indices `js` used for the summation over
             a d-dimensional `Zs` vector.
 
