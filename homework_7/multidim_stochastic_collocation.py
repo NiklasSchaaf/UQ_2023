@@ -345,10 +345,23 @@ if __name__ == "__main__":
     plt.show()
 
     ## Cache the model evaluations at the collocation nodes 
+    # Initialize the cache
     n_randvars = len(Zs)
 
     model_evaluation_cache = zeros(
         shape=(*([n_nodes_per_randvar]*n_randvars), 
                 *seir_model_solutions.shape))
 
-    print(model_evaluation_cache.shape)
+    print(model_evaluation_cache.shape) 
+
+    # precompute model at collocation nodes
+    for js in multi_index:
+        collocation_nodes_at_j = collocation_nodes_matrix[range(len(js)), js]
+        model_eval = SEIRmodel(*collocation_nodes_at_j)
+
+        # e.g., update `tensor[0, 0, 1, :, :]`  with the model evaluation
+        # having used collocation nodes corresponding to multindices (0, 0, 1)
+        eval_cache_ix = (*js, ...)
+        model_evaluation_cache[eval_cache_ix]  = model_eval
+
+    
