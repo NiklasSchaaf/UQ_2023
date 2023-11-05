@@ -202,7 +202,7 @@ def stochastic_collocation_summand(
     js: List[int], 
     Zs: ndarray, 
     collocation_nodes_matrix: ndarray, 
-    model: Union[Callable, ndarray]):
+    model: Callable):
     """Stochastic collocation on collocation nodes of indices `js`.
  
     On slide 9 of UQ lecture 8, this function corresponds to the summand
@@ -238,6 +238,9 @@ def multidim_stochastic_collocation(
     collocation_nodes_matrix: ndarray,
     multi_index: Tuple):
     """Multidimensional stochastic collocation using dense tensor product.
+
+    TODO: Caching the model evaluations at multi-indices would be ideal
+    for running monte-carlo simulation.
    
     Args: 
         Zs: Vector of realizations of the random variables 
