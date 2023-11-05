@@ -1,6 +1,6 @@
+from typing import List, Union, Callable
 import itertools 
 from numpy import ndarray, cos, pi, zeros, array
-
 
 def get_clenshawcurtis_collocation_nodes_matrix(k: int, d_dims: int) -> ndarray:
     """Matrix where rows are collocation nodes for the i^th random variable.
@@ -97,6 +97,55 @@ def lagrange_basis(x, data_points, j):
     return basis
 
 
+def lagrange_basis_product(js, Zs, collocation_nodes_matrix):
+    """Product of lagrange basis functions (see slide 9 UQ Lecture 8)."""
+    prod = 1
+    d_dims = len(js)
+    for n in range(d_dims):
+        Z_n = Zs[n]
+        j_n = js[n]
+        theta_M_n = collocation_nodes_matrix[n, :]
+        prod *= lagrange_basis(Z_n, theta_M_n, n)
+    return prod
+
+
 def map_val_to_new_interval(val, a, b):
     """Map value on interval [-1, 1] to [a, b]."""
     return ((b-a)/2)*val + (a + b)/2
+
+
+def stochastic_collocation_summand(
+    js: List[int], 
+    Zs: ndarray, 
+    collocation_nodes_matrix: ndarray, 
+    model: Union[Callable, ndarray]):
+    """Stochastic collocation on collocation nodes of indices `js`.
+ 
+    On slide 9 of UQ lecture 8, this function corresponds to the summand
+    (i.e., the "thing" inside the product of sums over the multi-index).
+    
+    Args:
+        js: List of indices (i.e., the multi-index).
+        Zs: Vector of realizations of the random variables 
+            (i.e., Z_1, Z_2, ..., Z_d).
+        collocation_nodes_matrix: Matrix of collocation nodes where the i^th
+            row is the set of collocation nodes for the i^th random variable.
+        model: Function `u` that will be evaluated at collocation nodes 
+            corresponding to the indices `js`.
+
+    Returns:
+        The product of the `model` evaluated at the collocation nodes using the
+        multi-index `js` AND the lagrange basis functions product.
+    """
+    d_dims = len(js)
+    collocation_nodes_at_j = collocation_nodes_matrix[range(len(js)), js]
+    if isinstance(model, Callable):
+        u = model(*collocation_nodes_at_j)
+    elif isinstance(model, ndarray):
+        u = model
+    else:
+        raise TypeError(
+            "`model` must be of type `ndarray` or `Callable`" 
+            f"but got {type(model)}")
+    L = lagrange_basis_product(js, Zs, collocation_nodes_matrix)
+    return u*L
