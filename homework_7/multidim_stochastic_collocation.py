@@ -10,6 +10,8 @@ python homework_7/multidim_stochastic_collocation
 
 from typing import List, Union, Callable, Tuple
 
+from argparse import ArgumentParser
+
 import itertools 
 
 import os
@@ -293,6 +295,18 @@ def multidim_stochastic_collocation(
 
 
 if __name__ == "__main__":
+    ## Define CLI for convenience
+    parser = ArgumentParser(
+        description="multidimensional stochastic collocation")
+    parser.add_argument("-R0", type=float, default=2.2, help="(default: 2.2)")
+    parser.add_argument("-T", type=float, default=9, help="(default: 9)")
+    parser.add_argument("-tau", type=float, default=10, help="(default: 10)")
+    parser.add_argument(
+        "-k", type=int, default=2, 
+        help="Clenshaw-Curtis node level. Supply `-k 4` for regular model"
+        " and stochastic approximation to overlap. (default: 2)")
+    args = parser.parse_args()
+
     ## Example stochastic collocation using uncached model evaluations
 
     # define random variable intervals 
@@ -303,9 +317,9 @@ if __name__ == "__main__":
  
     # Create the Zs vector by selecting arbitrary values in the appropriate
     # intervals for the random vars
-    R0 = 2.2
-    T = 9
-    tau = 10
+    R0: float = args.R0
+    T: float = args.T
+    tau: float = args.tau
     Zs = [R0, T, tau] # this order is important for the model
    
     # Create the collocation nodes 
@@ -314,7 +328,7 @@ if __name__ == "__main__":
     # is `num_nodes**d`, this grows exponentially fast and is a huge bottleneck
     # e.g., level 5 --> 17 collocation nodes and d=3 --> 17**3 = 4913 
     # evaluations of model function `u`
-    clenshaw_curtis_level = 2 
+    clenshaw_curtis_level: int = args.k
     collocation_nodes_matrix = get_clenshawcurtis_collocation_nodes_matrix(
         k=clenshaw_curtis_level, d_dims=len(Zs)) 
 
@@ -352,14 +366,17 @@ if __name__ == "__main__":
     infected = seir_model_solutions[:, 2]
     
     # plot the approximated infected and the regular model infected
-    plt.plot(infected_approx, label="Stochastic Collocation")
-    plt.plot(infected, label="Regular")
+    plt.plot(
+        infected_approx, 
+        label=r"Stochastic Approximation, $\widetilde{u}$")
+    plt.plot(infected, label=r"Regular Model, $u$")
 
     plt.xlabel("timesteps")
     plt.ylabel("infected")
-    plt.title("Multidimensional Stochastic Collocation" 
-    f" of {len(multi_index)} Points and Regular Model"
-    f"\n[R0, t, tau] -> {Zs}")
+    plt.title(
+        f"Multidim Stochastic Collocation ({n_nodes_per_randvar}**{len(Zs)}"
+        " points) & Regular Model" 
+        f"\n[R0, t, tau] -> {Zs}")
     plt.legend()
 
     plt.show()
@@ -375,7 +392,8 @@ if __name__ == "__main__":
     print(model_evaluation_cache.shape) 
 
     # precompute model at collocation nodes
-    for js in multi_index:
+    for js in tqdm(
+        multi_index, desc="Precompute model evaluations collocation nodes"):
         collocation_nodes_at_j = collocation_nodes_matrix[range(len(js)), js]
         model_eval = SEIRmodel(*collocation_nodes_at_j)
 
