@@ -204,10 +204,7 @@ def stochastic_collocation_summand(
     collocation_nodes_matrix: ndarray, 
     model: Callable):
     """Stochastic collocation on collocation nodes of indices `js`.
- 
-    On slide 9 of UQ lecture 8, this function corresponds to the summand
-    (i.e., the "thing" inside the sums over the multi-index).
-    
+  
     Args:
         js: List of indices (i.e., the multi-index).
         Zs: Vector of realizations of the random variables 
@@ -220,6 +217,10 @@ def stochastic_collocation_summand(
     Returns:
         The product of the `model` evaluated at the collocation nodes using the
         multi-index `js` AND the lagrange basis functions product.
+
+    References: 
+        On slide 9 of UQ lecture 8, this function corresponds to the summand
+        (i.e., the "thing" inside the sums over the multi-index).
     """
     d_dims = len(js)
     collocation_nodes_at_j = collocation_nodes_matrix[range(len(js)), js]
