@@ -11,10 +11,6 @@ python homework_7/multidim_stochastic_collocation
 from typing import List, Union, Callable, Tuple
 
 import itertools 
-<<<<<<< HEAD
-from numpy import ndarray, cos, pi, zeros, array
-from numba import njit
-=======
 
 import os
 import sys
@@ -29,7 +25,6 @@ from tqdm import tqdm
 # explicitly add project root dir to path to fix import issue
 sys.path.append(os.path.join(os.path.dirname(__file__), '..')) 
 from homework_7.SEIRmodel import SEIRmodel
->>>>>>> 7e29951486e5b927e4edd2a7e3eb5743c88fc7fb
 
 
 def get_clenshawcurtis_collocation_nodes_matrix(k: int, d_dims: int) -> ndarray:
@@ -112,9 +107,6 @@ def nested_clenshaw_curtis_node(j, m_ik):
     """
     return -cos((pi*(j - 1))/(m_ik - 1))
 
-<<<<<<< HEAD
-@njit
-=======
 
 def map_uniform_val_to_new_interval(val, a, b):
     """Map value on interval [-1, 1] to [a, b].
@@ -174,7 +166,6 @@ def get_multi_index(collocation_nodes_matrix: ndarray) -> itertools.product:
     return multi_index
 
 
->>>>>>> 7e29951486e5b927e4edd2a7e3eb5743c88fc7fb
 def lagrange_basis(x, data_points, j):
     """Calculate the Lagrange basis function for the j-th data point.
 
@@ -194,12 +185,6 @@ def lagrange_basis(x, data_points, j):
 
     return basis
 
-<<<<<<< HEAD
-@njit
-def map_val_to_new_interval(val, a, b):
-    """Map value on interval [-1, 1] to [a, b]."""
-    return ((b-a)/2)*val + (a + b)/2
-=======
 
 def lagrange_basis_product(js, Zs, collocation_nodes_matrix):
     """Product of lagrange basis functions (see slide 9 UQ Lecture 8)."""
@@ -356,4 +341,3 @@ if __name__ == "__main__":
     plt.legend()
 
     plt.show()
->>>>>>> 7e29951486e5b927e4edd2a7e3eb5743c88fc7fb
