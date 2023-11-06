@@ -2,8 +2,11 @@
 
 Usage:
 ```shell
-# To see what the output of stochastic collocation looks like, run the below
-python homework_7/multidim_stochastic_collocation 
+# To see what the options are for the script, do the below
+python homework_7/multidim_stochastic_collocation -h
+
+# To run the script at a reasonable Clenshaw-Curtis level k, do the below
+python homework_7/multidim_stochastic_collocation -k 4
 ```
 """
 
@@ -234,6 +237,7 @@ def stochastic_collocation_summand(
         u = model(*collocation_nodes_at_j)
 
     elif isinstance(model, ndarray):
+        # precomputed model evaluations of collocation nodes at this multi-index
         u = model[js]
 
     else:
@@ -280,8 +284,14 @@ def multidim_stochastic_collocation(
         u_approx = zeros_like(model(*Zs))
 
     elif isinstance(model, ndarray):
+        # e.g., for 3 collocation nodes per rand var and w/ model output 
+        # of shape [50_000, 4], then this shape is [3, 3, 3, 50_000, 4]
         precomputed_tensor_shape = model.shape
+
+        # Only the dimensions past the number of random variables are the model
+        # output dimensions, e.g., [3, 3, 3, 50_000, 4] --> [50_000, 4]
         model_shape = precomputed_tensor_shape[len(Zs): ]
+        
         u_approx = zeros(shape=model_shape)
 
     else:
