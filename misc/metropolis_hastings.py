@@ -29,7 +29,10 @@ def metropolis_hastings(
     posterior_distribution_kwargs: Dict = dict(loc=0.0, scale=1.0),
     # misc
     verbose: bool = True):
-    """Metropolis-Hastings algorithm.
+    """Metropolis-Hastings algorithm to sample from posterior distribution.
+
+    NOTE: The `posterior_distribution_pdf` in the context of UQ will be a
+    gPC approximation.
 
     One method in a set of methods known as Markov Chain Monte-Carlo for 
     sampling from a distribution even when all that is known about the 
@@ -39,7 +42,8 @@ def metropolis_hastings(
     The target distribution is the distribution `Z` for which we only know
     how to calculate its likelihood `L(z) = p(d | z)` where `p` is a
     probability density function, `z` is a realization of `Z`, and `d` is some 
-    "evidence" (aka, data).
+    "evidence" (aka, data). According to ref [2], the target distribution
+    is the posterior distribution.
 
     Examples:
     ```
