@@ -46,7 +46,10 @@ def metropolis_hastings(
     ratio is equivalent to `p(d=proposal|z)*p(z)/p(d=prev_sample|z)*p(z)`.
     In other words, the prior distribution `p(z)` cancels, and then we use
     a representation of `p(d|z)` given by a gPC approximation (eq. 8.17 Xiu)
-    in order to sample the target (posterior) distribution `p(z|d)`.
+    in order to sample the target (posterior) distribution `p(z|d)`. So with
+    some modification, the current function could be used for inverse UQ 
+    provided the `target_distribution_pdf` corresponds to a gPC approximation 
+    of `p(d|z)`.
  
     Examples:
     ```
