@@ -1,3 +1,6 @@
+"""Didactic metropolis-hastings for univariate distributions. Not used in HW."""
+
+
 from typing import Callable, Dict, Optional
 
 import matplotlib.pyplot as plt
@@ -183,7 +186,7 @@ def metropolis_hastings(
         density_proposal = target_distribution_pdf(
             proposal, **target_distribution_pdf_kwargs)/J_proposal
         density_prev_sample = target_distribution_pdf(
-            prev_sample, **target_distribution_pdf_kwargs)/J_proposal
+            prev_sample, **target_distribution_pdf_kwargs)/J_prev_sample
         density_ratio = density_proposal/density_prev_sample 
     
         # Determine accept/rejection of proposed sample
