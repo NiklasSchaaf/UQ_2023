@@ -108,8 +108,8 @@ def multivariate_metropolis_hastings(
         q_prev_sample = mvdnorm(prev_sample, **mvdnorm_kwargs)      # q(u, w)
     
         # Compute scaled densities using target distribution pdf
-        density_proposal = target_pdf(proposal)/q_proposal          # p(w)/q(w,u)
-        density_prev_sample = target_pdf(prev_sample)/q_prev_sample # p(u)/q(u,w)
+        density_proposal = target_pdf(proposal)*q_proposal          # p(w)*q(w,u)
+        density_prev_sample = target_pdf(prev_sample)*q_prev_sample # p(u)*q(u,w)
         
         density_ratio = density_proposal/density_prev_sample        
 
@@ -174,7 +174,7 @@ if __name__ == "__main__":
     y = linspace(0, 5, n_points)
     X, Y = meshgrid(x, y)
     Z = hw8_pdf([X, Y])
-    ax.contourf(X, Y, Z) 
+    ax.contourf(X, Y, Z, levels=10) 
 
     # Run MCMC
     x0 = array([0., 0.])
