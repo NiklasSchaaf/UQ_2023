@@ -1,4 +1,11 @@
-"""Functions and plotting for UQ HW 8."""
+"""Functions and plotting for UQ HW 8.
+
+Usage:
+```shell
+# If in dir containing hw8_jf.py, run the below
+python hw8_jf.py --alpha 5 --n-samples 10_000 --burnin 1000
+```
+"""
 
 
 from typing import Callable, Dict, Optional, Tuple
@@ -79,8 +86,7 @@ def multivariate_metropolis_hastings(
     samples = zeros(shape=(n_samples+1, n_dims))
     samples[0] = x0
 
-    # For tracking the acceptance probabilties (for hw8) corresponding to 
-    # ratio of proposal and previous sample densities
+    # For tracking the acceptance probabilties during MCMC sampling
     acceptance_probabilities = [] 
 
     # TODO: Track markov chain running mean
@@ -91,20 +97,21 @@ def multivariate_metropolis_hastings(
         desc="Multivariate Metropolis-Hastings", 
         disable=not verbose):
 
-        prev_sample = samples[i-1]
+        prev_sample = samples[i-1]                                  # u_{n-1}
 
         # Compute proposal
-        proposal = mvrnorm(mean=prev_sample, cov=K_q)
+        proposal = mvrnorm(mean=prev_sample, cov=K_q)               # u*
 
         # Compute pdfs for scaling target densities 
         mvdnorm_kwargs = dict(mean=prev_sample, cov=K_q)
-        q_proposal = mvdnorm(proposal, **mvdnorm_kwargs)
-        q_prev_sample = mvdnorm(prev_sample, **mvdnorm_kwargs)
+        q_proposal = mvdnorm(proposal, **mvdnorm_kwargs)            # q(w, u)
+        q_prev_sample = mvdnorm(prev_sample, **mvdnorm_kwargs)      # q(u, w)
     
-        # Compute scaled density ratio using target distribution pdf
-        density_proposal = target_pdf(proposal)/q_proposal
-        density_prev_sample = target_pdf(prev_sample)/q_prev_sample
-        density_ratio = density_proposal/density_prev_sample 
+        # Compute scaled densities using target distribution pdf
+        density_proposal = target_pdf(proposal)/q_proposal          # p(w)/q(w,u)
+        density_prev_sample = target_pdf(prev_sample)/q_prev_sample # p(u)/q(u,w)
+        
+        density_ratio = density_proposal/density_prev_sample        
 
         # compute acceptance probability and update list
         acceptance_probability = accept(density_ratio)
@@ -173,7 +180,7 @@ if __name__ == "__main__":
     x0 = array([0., 0.])
     samples, acceptance_probabilities = multivariate_metropolis_hastings(
         x0, 
-        n_samples,
+        n_samples + burnin,
         target_pdf=hw8_pdf, 
         alpha=alpha)
 
