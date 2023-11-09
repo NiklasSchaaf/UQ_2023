@@ -2,7 +2,7 @@ from typing import Callable, Dict, Optional
 
 import matplotlib.pyplot as plt
 
-from numpy import zeros, ndarray
+from numpy import zeros, ndarray, exp, meshgrid, linspace, absolute, power
 
 # 'as' naming follows R conventions
 from numpy.random import ( 
@@ -196,3 +196,20 @@ def metropolis_hastings(
  
     return samples 
 
+
+def V(x, y):
+    return power((x - y - 1), 4) + absolute(x + y - 6)
+
+
+def hw8_pdf(x, y):
+    return exp(-V(x, y))
+
+if __name__ == "__main__":
+    ## Reproduce contour plot
+    n_points = 500
+    x = linspace(1, 6, n_points)
+    y = linspace(0, 5, n_points)
+    X, Y = meshgrid(x, y)
+    Z = hw8_pdf(X, Y)
+    plt.contourf(X, Y, Z) 
+    plt.show()
