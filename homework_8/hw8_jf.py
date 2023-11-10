@@ -3,7 +3,7 @@
 Usage:
 ```shell
 # If in dir containing hw8_jf.py, run the below
-python hw8_jf.py --alpha 5 --n-samples 10_000 --burnin 1000
+python hw8_jf.py --alpha 0.5 --n-samples 10_000 --burnin 1000
 ```
 """
 
@@ -164,9 +164,9 @@ if __name__ == "__main__":
     burnin: int = args.burnin
     seed(0)
 
-    ## Homework 8
+    ## Homework 8 example plotting
     # init mpl objs
-    fig, ax = plt.subplots()
+    fig, axs = plt.subplots(ncols=2)
 
     # Reproduce contour plot
     n_points = 500
@@ -174,7 +174,7 @@ if __name__ == "__main__":
     y = linspace(0, 5, n_points)
     X, Y = meshgrid(x, y)
     Z = hw8_pdf([X, Y])
-    ax.contourf(X, Y, Z, levels=10) 
+    axs[0].contourf(X, Y, Z, levels=10) 
 
     # Run MCMC
     x0 = array([0., 0.])
@@ -184,11 +184,11 @@ if __name__ == "__main__":
         target_pdf=hw8_pdf, 
         alpha=alpha)
 
-    ax.plot(
+    axs[0].plot(
         samples[burnin:, 0], samples[burnin:, 1], 
         marker=".", markersize=2, linewidth=0.75, color="red", alpha=0.5) 
 
-    ax.set_title("Mean Acceptance Probability:" 
+    axs[0].set_title("Mean Acceptance Probability:" 
         f" {mean(acceptance_probabilities)}")
 
     plt.show()
