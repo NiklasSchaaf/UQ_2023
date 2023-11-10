@@ -39,7 +39,7 @@ def multivariate_metropolis_hastings(
     x0: ndarray, 
     n_samples: int,
     target_pdf: Callable, 
-    alpha: Optional[float] = None,
+    alpha: float,
     verbose: bool = True) -> Tuple[ndarray, ndarray]:
     """Samples from multivariate target distribution through MCMC.
 
