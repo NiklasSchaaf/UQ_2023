@@ -89,8 +89,6 @@ def multivariate_metropolis_hastings(
     # For tracking the acceptance probabilties during MCMC sampling
     acceptance_probabilities = [] 
 
-    # TODO: Track markov chain running mean
-
     # Perform MCMC sampling w/ metropolis hastings algorithm
     for i in tqdm(
         range(1, n_samples+1), 
