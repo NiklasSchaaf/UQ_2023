@@ -37,7 +37,7 @@ def MCMC(param_covariance, observations, init, steps, tqdm_bool=False):
     dims = len(init)
     mean = np.array([0, 4])
     # variance of the proposal distribution, to be tuned
-    K_q = param_covariance * np.eye(dims)
+    K_q = param_covariance**2 * np.eye(dims)
     acceptance_probs_dict = {}
     states = np.zeros((steps, dims))
     accepted = 0
@@ -69,7 +69,7 @@ def MCMC(param_covariance, observations, init, steps, tqdm_bool=False):
 
         random_threshold = np.random.uniform(0, 1)
         # calculate the acceptance rate
-        if acceptance_prob > random_threshold:
+        if acceptance_prob >= random_threshold:
             states[i] = cand
             accepted += 1
         else:
