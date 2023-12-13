@@ -231,6 +231,8 @@ def stochastic_collocation_summand(
     # determine how the model outputs for these nodes are computed
     if isinstance(model, Callable):
         # get the collocation nodes for the current multi-indices
+        # e.g., matrix[(0, 1, 2), (0, 0, 0)] would return a 1D array
+        # of elements [matrix[0, 0], matrix[1, 0], matrix[2, 0]]
         collocation_nodes_at_j = collocation_nodes_matrix[range(len(js)), js]
 
         # Determine function u evaluation at collocation nodes from multi-index js 
@@ -408,6 +410,8 @@ if __name__ == "__main__":
     # precompute model at collocation nodes
     for js in tqdm(
         multi_index, desc="Precompute model evaluations collocation nodes"):
+        # e.g., matrix[(0, 1, 2), (0, 0, 0)] would return a 1D array
+        # of elements [matrix[0, 0], matrix[1, 0], matrix[2, 0]]
         collocation_nodes_at_j = collocation_nodes_matrix[range(len(js)), js]
         model_eval = SEIRmodel(*collocation_nodes_at_j)
 
